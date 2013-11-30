@@ -1,0 +1,28 @@
+{
+  "name": "pouchdb.replicator",
+  "version": "0.0.0",
+  "description": "Persistent replications in PouchDB, a la CouchDB's _replicator",
+  "main": "index.js",
+  "scripts": {
+    "test": "istanbul test test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/garbados/pouchdb-replicator.git"
+  },
+  "keywords": [
+    "pouchdb",
+    "couchdb",
+    "replication"
+  ],
+  "author": "Max Thayer <garbados@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/garbados/pouchdb-replicator/issues"
+  },
+  "devDependencies": {
+    "pouchdb": "0.0.14",
+    "istanbul": "~0.1.45",
+    "async": "~0.2.9"
+  }
+}
