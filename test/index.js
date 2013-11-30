@@ -1,7 +1,6 @@
 var replicator = require('../'),
     pouchdb = replicator(require('pouchdb')),
-    async = require('async'),
-    fs = require('fs');
+    async = require('async');
 
 var docs = [
   {
@@ -34,7 +33,7 @@ async.series([
       if (err) {
         throw err;
       } else if (res.rows.length !== docs.length) {
-        console.log(res.rows.length, '!==', docs.length);
+        throw [res.rows.length, '!==', docs.length].join(' ');
       }
     });
   }
