@@ -4,7 +4,7 @@
   "description": "Persistent replications in PouchDB, a la CouchDB's _replicator",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha test/index.js"
+    "test": "./node_modules/istanbul/lib/cli.js test ./node_modules/mocha/bin/_mocha test/index.js"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "url": "https://github.com/garbados/pouchdb-replicator/issues"
   },
   "devDependencies": {
-    "pouchdb": "0.0.14",
+    "pouchdb": "~0.0.16",
     "istanbul": "~0.1.45",
     "async": "~0.2.9",
     "mocha": "~1.14.0",

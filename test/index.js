@@ -5,11 +5,15 @@ var replicator = require('../'),
     assert = require('assert');
 
 describe('replicator', function () {
+  this.timeout(15000);
+
   var dbs = fixtures.dbs,
-      docs = fixtures.docs;
+      docs = fixtures.docs,
+      replicator = pouchdb.replicator();
 
   beforeEach(function (done) {
     var db1 = new pouchdb(dbs[0]);
+
     db1.bulkDocs({docs: docs}, done);
   });
 
@@ -17,7 +21,19 @@ describe('replicator', function () {
     var dbs_to_destroy = dbs
           .concat('_replicator')
           .map(function (db_name) {
-            return pouchdb.destroy.bind(pouchdb, db_name);
+            return function (done) {
+              pouchdb.destroy(db_name, function (err) {
+                if (err) {
+                  if (err.status === 404) {
+                    done();
+                  } else {
+                    done(err);
+                  }
+                } else {
+                  done();
+                }
+              });
+            };
           });
 
     async.parallel(dbs_to_destroy, done);
@@ -26,7 +42,7 @@ describe('replicator', function () {
   it('should replicate docs', function (done) {
     async.series([
       function (done) {
-        pouchdb.replicator().post({
+        replicator.post({
           source: dbs[0],
           target: dbs[1],
           create_target: true,
@@ -36,11 +52,45 @@ describe('replicator', function () {
       function (done) {
         var results = new pouchdb(dbs[1]);
 
-        results.allDocs(function (err, res) {
-          assert.equal(res.rows.length, docs.length);
+        results.allDocs({
+          limit: 0
+        }, function (err, res) {
+          assert.equal(res.total_rows, docs.length);
           done(err);
         });
       }
     ], done);
+  });
+
+  it('should stop replications when their doc is deleted', function (done) {
+    async.waterfall([
+      function (done) {
+        var doc = {
+          source: dbs[0],
+          target: dbs[1],
+          create_target: true
+        };
+        replicator.post(doc, done);
+      },
+      function (res, done) {
+        replicator.get(res._id, function (err, doc) {
+          if (err) throw err;
+          replicator.remove(doc, done);
+        });
+      },
+      function (res, done) {
+        var results = new pouchdb(dbs[1]);
+
+        results.allDocs({
+          limit: 0
+        }, function (err, res) {
+          assert.notEqual(res.total_rows, docs.length);
+          done(err);
+        });
+      }
+    ], function (err) {
+      console.log(err);
+      done(err);
+    });
   });
 });

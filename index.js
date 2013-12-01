@@ -1,6 +1,9 @@
+var path = require('path');
+
 var Replicator = function (PouchDB) {
   PouchDB.replicator = function (prefix) {
-    var db = new PouchDB([prefix || '', '_replicator'].join(''));
+    var db = new PouchDB(path.join(prefix || '', '_replicator')),
+        replications = {};
 
     function startReplication (change) {
       if (change && change.doc) {
@@ -8,12 +11,12 @@ var Replicator = function (PouchDB) {
             source = doc.source,
             target = doc.target;
 
-        // remove the source and target field
-        // so only the options remain
-        delete doc.source;
-        delete doc.target;
-
-        PouchDB.replicate(source, target, doc);
+        if (source && target) {
+          var promise = PouchDB.replicate(source, target, doc);
+          replications[doc._id] = promise;
+        } else {
+          // make a fuss
+        }
       }
     }
 
